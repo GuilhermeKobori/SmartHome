@@ -3,7 +3,7 @@ import time
 import Adafruit_DHT
 import sqlite3
 import os.path
-import datetime
+from datetime import datetime, timedelta
 import subprocess, sys
 
 def rotateMotor(rotations): 
@@ -16,7 +16,36 @@ def rotateMotor(rotations):
 def readBrightness():
     p = subprocess.Popen("./tsl_read",shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     o, e = p.communicate()
-    return float(o.decode('ascii'))
+    brightness=float(o.decode('ascii'))*6.83
+    return brightness
+ 
+def write15minValues():
+    humidity, temperature = Adafruit_DHT.read_retry(temperature_sensor, temperature_pin)
+    brightness = readBrightness()
+    if humidity is not None and temperature is not None:
+        print('Temp={0:0.1f}*  Humidity={1:0.1f}% Brightness={2:0.1f}Lux '.format(temperature, humidity,brightness))
+        curs.execute("insert into Values_15min values((?), (?), (?),(?), (?))", (datetime.now().strftime("%d/%m/%Y"),datetime.now().strftime("%H:%M:%S"),  round(temperature,2), round(humidity,2),brightness))
+        conn.commit()
+    else:
+        print('Failed to get reading. Try again!')
+
+def writeValuesDay():
+    d=datetime.now() - timedelta(days=1)
+    curs.execute("SELECT AVG(V.Temperature),AVG(V.Humidity),AVG(V.Brightness) FROM Values_15min V Where Date=(?)", (d.strftime("%d/%m/%Y"),))
+    row = curs.fetchall()[0] 
+    curs.execute("insert into Values_day values((?), (?),(?), (?))", (d.strftime("%d/%m/%Y"), row[0], row[1] ,row[2]))
+    conn.commit()
+    
+def routine():
+    while(True):
+        #if GPIO.input(CO2_sensor_pin):
+        #    print("Fire Alarm!")
+        #rotateMotor(2)
+        if  datetime.now().hour==0 and datetime.now().minute==0:
+                writeValuesDay()
+        if datetime.now().minute==0  or datetime.now().minute==15 or datetime.now().minute==30 or datetime.now().minute==45 :
+                write15minValues()
+        time.sleep(60)
     
 #setup
 GPIO.setmode(GPIO.BOARD)
@@ -27,12 +56,12 @@ conn = sqlite3.connect(db_path)
 curs = conn.cursor()
 
 #Variable declarations
-step_motor_control_pins = [7,11,13,15]
 CO2_sensor_pin = 40
 temperature_sensor = Adafruit_DHT.AM2302
-#Adafruit uses GPIO pin numbers
-temperature_pin = 2
+temperature_pin = 2 #Adafruit uses GPIO pin numbers
+brightness_pin =22
 
+step_motor_control_pins = [7,11,13,15]
 halfstep_seq = [
   [1,0,0,0],
   [1,1,0,0],
@@ -46,28 +75,15 @@ halfstep_seq = [
 
 #GPIO setup
 GPIO.setup(CO2_sensor_pin, GPIO.IN)
+GPIO.setup(brightness_pin, GPIO.IN)
+
 
 for pin in step_motor_control_pins:
   GPIO.setup(pin, GPIO.OUT)
   GPIO.output(pin, 0)
 
 #Routine
-humidity, temperature = Adafruit_DHT.read_retry(temperature_sensor, temperature_pin)
-
-if humidity is not None and temperature is not None:
-    print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
-    
-    curs.execute("insert into test values((?), (?), (?))", (datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), round(temperature,2), round(humidity,2)))
-    conn.commit()
-else:
-    print('Failed to get reading. Try again!')
-
-if GPIO.input(40):
-    print("Sensor is active")
-else:
-    print("Sensor is inactive")
-print("The brightness is:",readBrightness())
-rotateMotor(2)
+routine()
 
 GPIO.cleanup()
 
