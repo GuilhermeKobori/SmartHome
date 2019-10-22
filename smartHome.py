@@ -83,6 +83,7 @@ for pin in step_motor_control_pins:
   GPIO.output(pin, 0)
 
 #Routine
+print("Starting routine\n")
 routine()
 
 GPIO.cleanup()
