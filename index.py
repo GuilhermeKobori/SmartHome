@@ -5,13 +5,23 @@ from datetime import datetime
 app = Flask(__name__)
 
 @app.route('/')
+@app.route('/Current')
 def index():
     con = sql.connect("measurementData.db")
     con.row_factory = sql.Row
     cur = con.cursor()
-    
+    interval=request.args.get('Interval')
+    if interval=="month":
+        interval="This month"
+        cur.execute("SELECT * FROM test")
+    elif interval=="week":
+        interval="This week"
+        cur.execute("SELECT * FROM test")
+    else :
+        interval="Today"
+        cur.execute("select * from test")
     rows = cur.fetchall();
-    return render_template('index.html', rows = rows)
+    return render_template('index.html', rows = rows, interval=interval)
 
 @app.route('/Archive')
 def archive():
@@ -19,14 +29,7 @@ def archive():
     con.row_factory = sql.Row
    
     cur = con.cursor()
-    interval=request.args.get('Interval')
-    if interval=="month":
-        cur.execute("SELECT * FROM test")
-    elif interval=="week":
-        cur.execute("SELECT * FROM test")
-    else :
-       cur.execute("select * from test")
-    cur.execute("select * from test")
+    
    
     rows = cur.fetchall();
     return render_template('index.html', rows = rows)

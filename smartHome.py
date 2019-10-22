@@ -4,6 +4,7 @@ import Adafruit_DHT
 import sqlite3
 import os.path
 import datetime
+import subprocess, sys
 
 def rotateMotor(rotations): 
     for i in range(512 * rotations):
@@ -12,6 +13,11 @@ def rotateMotor(rotations):
                 GPIO.output(step_motor_control_pins[pin], halfstep_seq[halfstep][pin])
             time.sleep(0.001)
 
+def readBrightness():
+    p = subprocess.Popen("./tsl_read",shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+    o, e = p.communicate()
+    return float(o.decode('ascii'))
+    
 #setup
 GPIO.setmode(GPIO.BOARD)
 
@@ -60,7 +66,7 @@ if GPIO.input(40):
     print("Sensor is active")
 else:
     print("Sensor is inactive")
-
+print("The brightness is:",readBrightness())
 rotateMotor(2)
 
 GPIO.cleanup()

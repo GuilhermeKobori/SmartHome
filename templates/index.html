@@ -29,7 +29,7 @@
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="#">
+                <a class="nav-link active" href="/Current">
                   <span data-feather="activity"></span>
                   Live values <span class="sr-only">(current)</span>
                 </a>
@@ -61,9 +61,11 @@
             <h1 class="h2">Dashboard</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
                 <div class="dropdown">
-		  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">This day
+		  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+		  <span id="selected">Today</span>
 		  <span data-feather="calendar"></span></button>
 		  <ul class="dropdown-menu">
+		    <li><a href="?Interval=day">Today</a></li>
 		    <li><a href="?Interval=week">This week</a></li>
 		    <li><a href="?Interval=month">This month</a></li>
 		  </ul>
@@ -121,6 +123,9 @@
     <!-- Graphs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
     <script>
+      
+      $('#selected').text("{{interval}}");
+      
       var ctx = document.getElementById("myChart");
       var myChart = new Chart(ctx, {
         type: 'line',
