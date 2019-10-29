@@ -82,7 +82,6 @@
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Time</th>
                   <th>Temperature</th>
                   <th>Humidity</th>
                   <th>Brightness</th>
@@ -92,7 +91,6 @@
 		{% for row in rows%}
 	                <tr>
 	                  <td>{{row["Date"]}}</td>
-	                  <td>{{row["Time"]}}</td>
 	                  <td>{{row["Temperature"]}}</td>
 	                  <td>{{row["Humidity"]}}</td>
 	                  <td>{{row["Brightness"]}}</td>
@@ -134,7 +132,7 @@
       var myChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: [{% for row in rows %} "{{row["Time"]}}", {%endfor%}],
+          labels: [{% for row in rows %} "{{row["Date"]}}", {%endfor%}],
           datasets: [{
             data: [{% for row in rows %} {{row["Temperature"]}}, {%endfor%}],
             lineTension: 0,

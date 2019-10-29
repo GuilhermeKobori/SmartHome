@@ -38,8 +38,9 @@ def writeValuesDay():
     
 def routine():
     while(True):
-        #if GPIO.input(CO2_sensor_pin):
-        #    print("Fire Alarm!")
+        if GPIO.input(CO2_sensor_pin):
+            print("Fire Alarm!")
+            GPIO.output(buzzer_pin, 1)
         #rotateMotor(2)
         if  datetime.now().hour==0 and datetime.now().minute==0:
                 writeValuesDay()
@@ -59,7 +60,10 @@ curs = conn.cursor()
 CO2_sensor_pin = 40
 temperature_sensor = Adafruit_DHT.AM2302
 temperature_pin = 2 #Adafruit uses GPIO pin numbers
-brightness_pin =22
+brightness_pin = 22
+buzzer_pin = 21
+light_pin = 23
+humidifier_pin = 24
 
 step_motor_control_pins = [7,11,13,15]
 halfstep_seq = [
@@ -76,7 +80,12 @@ halfstep_seq = [
 #GPIO setup
 GPIO.setup(CO2_sensor_pin, GPIO.IN)
 GPIO.setup(brightness_pin, GPIO.IN)
-
+GPIO.setup(buzzer_pin, GPIO.OUT)
+GPIO.output(buzzer_pin, 0)
+GPIO.setup(light_pin, GPIO.OUT)
+GPIO.output(light_pin, 0)
+GPIO.setup(humidifier_pin, GPIO.OUT)
+GPIO.output(humidifier_pin, 0)
 
 for pin in step_motor_control_pins:
   GPIO.setup(pin, GPIO.OUT)
