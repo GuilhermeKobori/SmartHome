@@ -45,9 +45,10 @@ def write15minValues():
             GPIO.output(humidifier_pin, 0)
         if(brightness < brightnessThreshold):
             GPIO.output(light_pin, 1)
-            
+            rotateMotor(2, "clockwise")
         else:
             GPIO.output(light_pin, 0)
+            rotateMotor(2, "counterclockwise")
     else:
         print('Temperature and humidity sensor not working')
 
