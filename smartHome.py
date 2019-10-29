@@ -39,7 +39,7 @@ def write15minValues():
     if humidity is not None and temperature is not None:
         print('Temp={0:0.1f}*  Humidity={1:0.1f}% Brightness={2:0.1f}Lux '.format(temperature, humidity,brightness))
         if(brightness == 0):
-            brightness = NULL
+            brightness = "NULL"
         curs.execute("insert into Values_15min values((?), (?), (?),(?), (?))", (datetime.now().strftime("%d/%m/%Y"),datetime.now().strftime("%H:%M:%S"),  round(temperature,2), round(humidity,2),brightness))
         conn.commit()
         if(humidity < humidityThreshold):
