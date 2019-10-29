@@ -1,0 +1,1 @@
+sudo -u pi /usr/local/bin/gpio export 25 in
