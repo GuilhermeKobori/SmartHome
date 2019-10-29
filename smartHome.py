@@ -6,6 +6,9 @@ import os.path
 from datetime import datetime, timedelta
 import subprocess, sys
 
+humidityThreshold = 60
+brightnessThreshold = 200
+
 def rotateMotor(rotations): 
     for i in range(512 * rotations):
         for halfstep in range(8):
@@ -14,10 +17,13 @@ def rotateMotor(rotations):
             time.sleep(0.001)
 
 def readBrightness():
-    p = subprocess.Popen("./tsl_read",shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    o, e = p.communicate()
-    brightness=float(o.decode('ascii'))*6.83
-    return brightness
+    try:
+        p = subprocess.Popen("./tsl_read",shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        o, e = p.communicate()
+        brightness=float(o.decode('ascii'))*6.83
+        return brightness
+    except:
+        print("Brightness sensor not working")
  
 def write15minValues():
     humidity, temperature = Adafruit_DHT.read_retry(temperature_sensor, temperature_pin)
@@ -26,8 +32,16 @@ def write15minValues():
         print('Temp={0:0.1f}*  Humidity={1:0.1f}% Brightness={2:0.1f}Lux '.format(temperature, humidity,brightness))
         curs.execute("insert into Values_15min values((?), (?), (?),(?), (?))", (datetime.now().strftime("%d/%m/%Y"),datetime.now().strftime("%H:%M:%S"),  round(temperature,2), round(humidity,2),brightness))
         conn.commit()
+        if(humidity < humidityThreshold):
+            GPIO.output(humidifier_pin, 1)
+        else:
+            GPIO.output(humidifier_pin, 0)
+        if(brightness < brightnessThreshold):
+            GPIO.output(light_pin, 1)
+        else:
+            GPIO.output(light_pin, 0)
     else:
-        print('Failed to get reading. Try again!')
+        print('Temperature and humidity sensor not working')
 
 def writeValuesDay():
     d=datetime.now() - timedelta(days=1)
@@ -41,7 +55,6 @@ def routine():
         if GPIO.input(CO2_sensor_pin):
             print("Fire Alarm!")
             GPIO.output(buzzer_pin, 1)
-        #rotateMotor(2)
         if  datetime.now().hour==0 and datetime.now().minute==0:
                 writeValuesDay()
         if datetime.now().minute==0  or datetime.now().minute==15 or datetime.now().minute==30 or datetime.now().minute==45 :
