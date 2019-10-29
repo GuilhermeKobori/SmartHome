@@ -9,11 +9,18 @@ import subprocess, sys
 humidityThreshold = 60
 brightnessThreshold = 200
 
-def rotateMotor(rotations): 
+def rotateMotor(rotations, direction):
+    if(direction == "clockwise"):
+        modifier = 1
+    elif(direction == "counterclockwise"):
+        modifier = -1
+    else:
+        print("Invalid direction! Must be 'clockwise' or 'counterclockwise'")
+        return
     for i in range(512 * rotations):
         for halfstep in range(8):
             for pin in range(4):
-                GPIO.output(step_motor_control_pins[pin], halfstep_seq[halfstep][pin])
+                GPIO.output(step_motor_control_pins[pin], halfstep_seq[modifier * halfstep][pin])
             time.sleep(0.001)
 
 def readBrightness():
@@ -38,6 +45,7 @@ def write15minValues():
             GPIO.output(humidifier_pin, 0)
         if(brightness < brightnessThreshold):
             GPIO.output(light_pin, 1)
+            
         else:
             GPIO.output(light_pin, 0)
     else:
