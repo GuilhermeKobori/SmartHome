@@ -57,7 +57,7 @@ def status():
     cur.execute("select * from test")
    
     rows = cur.fetchall();
-    return render_template('Status.html', rows = rows)
+    return render_template('status.html', rows = rows)
 
 @app.route('/settings')
 def settings():
