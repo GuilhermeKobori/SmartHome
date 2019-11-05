@@ -13,16 +13,25 @@ def index():
     interval=request.args.get('Interval')
     if interval=="month":
         interval="This month"
-        previousMonth = currentDate - datetime.timedelta(days = 30)
-        query = 'SELECT * from Values_15min WHERE Date IN ("%s", "%s")' % (currentDate.strftime("%d/%m/%Y"), previousMonth.strftime("%d/%m/%Y"))
-        cur.execute("SELECT * FROM Values_day")
+        dateInterval = '"' + currentDate.strftime("%d/%m/%Y") + '"'
+        for i in range(30):
+            previousDate = currentDate - datetime.timedelta(days = i+1)
+            dateInterval += ', "' + previousDate.strftime("%d/%m/%Y") + '"'
+        query = 'SELECT * from Values_Day WHERE Date IN (%s)' % (dateInterval)
+        print(query)
+        cur.execute(query)
         rows = cur.fetchall();
+        print(rows)
         return render_template('daily.html', rows = rows, interval=interval)
     elif interval=="week":
         interval="This week"
-        previousWeek = currentDate - datetime.timedelta(weeks = 1)
-        query = 'SELECT * from Values_15min WHERE Date IN ("%s", "%s")' % (currentDate.strftime("%d/%m/%Y"), previousWeek.strftime("%d/%m/%Y"))
-        cur.execute("SELECT * FROM Values_Day")
+        dateInterval = '"' + currentDate.strftime("%d/%m/%Y") + '"'
+        for i in range(7):
+            previousDate = currentDate - datetime.timedelta(days = i+1)
+            dateInterval += ', "' + previousDate.strftime("%d/%m/%Y") + '"'
+        query = 'SELECT * from Values_Day WHERE Date IN (%s)' % (dateInterval)
+        print(query)
+        cur.execute(query)
         rows = cur.fetchall();
         return render_template('daily.html', rows = rows, interval=interval)
     else :

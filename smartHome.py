@@ -69,10 +69,10 @@ def routine():
             GPIO.output(buzzer_pin, 1)
         else:
             GPIO.output(buzzer_pin, 0)
-        if  datetime.now().hour==0 and datetime.now().minute==0:
-                writeValuesDay()
         if datetime.now().minute==0  or datetime.now().minute==15 or datetime.now().minute==30 or datetime.now().minute==45 :
                 write15minValues()
+        if  datetime.now().hour==0 and datetime.now().minute==0:
+                writeValuesDay()
         time.sleep(60)
     
 #setup
