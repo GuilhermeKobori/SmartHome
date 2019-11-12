@@ -89,6 +89,8 @@ def writeValuesDay():
     conn.commit()
     
 def routine():
+    global humidityThreshold
+    global brightnessThreshold
     while(True):
         if GPIO.input(CO2_sensor_pin):
             print("Fire Alarm!")
@@ -99,6 +101,10 @@ def routine():
                 write15minValues()
         if  datetime.now().hour==0 and datetime.now().minute==0:
                 writeValuesDay()
+        curs.execute("select * from humidity_Threshold where id = 1")
+        humidityThreshold = curs.fetchone()
+        curs.execute("select * from brightness_Threshold where id = 1")
+        brightnessThreshold = curs.fetchone()
         time.sleep(60)
     
 #setup
