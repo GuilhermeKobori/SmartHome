@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import sqlite3 as sql
 import datetime
 
+
 app = Flask(__name__)
 
 @app.route('/index')
@@ -42,8 +43,9 @@ def index():
         rows = cur.fetchall();
         return render_template('index.html', rows = rows, interval=interval)
 
-@app.route('/interval')
+@app.route("/interval", methods=['GET', 'POST'])
 def interval():
+    print("Called Interval")
     con = sql.connect("measurementData.db")
     con.row_factory = sql.Row
     cur = con.cursor()
