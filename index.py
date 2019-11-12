@@ -63,12 +63,11 @@ def status():
     con.row_factory = sql.Row
    
     cur = con.cursor()
-    cur = con.cursor()
     cur.execute("select * from temperature_Humidity_Sensor where id = 1")
-    temperatureHumiditySensorStatus = cur.fetchall()
+    temperatureHumiditySensorStatus = cur.fetchone()
     cur.execute("select * from brightness_Sensor where id = 1")
-    brightnessSensorStatus = cur.fetchall()
-	
+    brightnessSensorStatus = cur.fetchone()
+    
     return render_template('status.html', brightnessSensorStatus = brightnessSensorStatus, temperatureHumiditySensorStatus = temperatureHumiditySensorStatus)
 
 @app.route('/settings')

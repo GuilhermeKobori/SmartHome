@@ -62,7 +62,7 @@
 					Temperature and Humidity Sensor Status
 				</div>
 				<div class="card-body">
-					{%if temperatureHumiditySensorStatus == "Working"%}
+					{%if temperatureHumiditySensorStatus["status"] == "Working"%}
 					<span class = "badge badge-success">Working</span>
 					<span data-feather="check"></span>
 					{%else%}
@@ -78,7 +78,7 @@
 					Brightness Sensor Status
 				</div>
 				<div class="card-body">
-					{%if brightnessSensorStatus == "Working"%}
+					{%if brightnessSensorStatus["status"] == "Working"%}
 					<span class = "badge badge-success">Working</span>
 					<span data-feather="check"></span>
 					{%else%}
