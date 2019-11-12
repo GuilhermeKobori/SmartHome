@@ -57,7 +57,36 @@
         </nav>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-          
+			<div class="card">
+				<div class="card-header">
+					Temperature and Humidity Sensor Status
+				</div>
+				<div class="card-body">
+					{%if temperatureHumiditySensorStatus["status"] == "Working"%}
+					<span class = "badge badge-success">Working</span>
+					<span data-feather="check"></span>
+					{%else%}
+					<span class = "badge badge-danger">Not working</span>
+					<span data-feather="alert-circle"></span>
+					{%endif%}
+				</div>
+			</div>
+			<div class="col-md-3"></div>
+			<br>
+			<div class="card">
+				<div class="card-header">
+					Brightness Sensor Status
+				</div>
+				<div class="card-body">
+					{%if brightnessSensorStatus["status"] == "Working"%}
+					<span class = "badge badge-success">Working</span>
+					<span data-feather="check"></span>
+					{%else%}
+					<span class = "badge badge-danger">Not working</span>
+					<span data-feather="alert-circle"></span>
+					{%endif%}
+				</div>
+			</div>
         </main>
       </div>
     </div>

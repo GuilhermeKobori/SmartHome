@@ -63,10 +63,12 @@ def status():
     con.row_factory = sql.Row
    
     cur = con.cursor()
-    cur.execute("select * from test")
-   
-    rows = cur.fetchall();
-    return render_template('status.html', rows = rows)
+    cur.execute("select * from temperature_Humidity_Sensor where id = 1")
+    temperatureHumiditySensorStatus = cur.fetchone()
+    cur.execute("select * from brightness_Sensor where id = 1")
+    brightnessSensorStatus = cur.fetchone()
+    
+    return render_template('status.html', brightnessSensorStatus = brightnessSensorStatus, temperatureHumiditySensorStatus = temperatureHumiditySensorStatus)
 
 @app.route('/settings')
 def settings():
@@ -80,4 +82,4 @@ def settings():
     return render_template('index.html', rows = rows)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True)

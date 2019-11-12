@@ -6,8 +6,15 @@ import os.path
 from datetime import datetime, timedelta
 import subprocess, sys
 
+#TODO database initialization script
+
 humidityThreshold = 60
 brightnessThreshold = 200
+
+updateTemperatureHumidityStatus = True
+updateBrightnessStatus = True
+temperatureHumidityStatus = "Working"
+brightnessStatus = "Working"
 
 def rotateMotor(rotations, direction):
     if(direction == "clockwise"):
@@ -28,11 +35,20 @@ def readBrightness():
         p = subprocess.Popen("./tsl_read",shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         o, e = p.communicate()
         brightness=float(o.decode('ascii'))*6.83
-        return brightness
+        if brightnessStatus == "Not working":
+            brightnessStatus = "Working"
+            updateBrightnessStatus = True
     except:
         print("Brightness sensor not working")
-        return 0
- 
+        brightness = 0
+        if brightnessStatus == "Working":
+            brightnessStatus = "Not working"
+            updateBrightnessStatus = True
+        if updateBrightnessStatus:
+            curs.execute("UPDATE brightness_Sensor SET status = (?) where id = 1", brightnessStatus)
+            updateBrightnessStatus = False
+        return brightness
+
 def write15minValues():
     humidity, temperature = Adafruit_DHT.read_retry(temperature_sensor, temperature_pin)
     brightness = readBrightness()
@@ -52,8 +68,18 @@ def write15minValues():
         else:
             GPIO.output(light_pin, 0)
             rotateMotor(2, "counterclockwise")
+        if temperatureHumidityStatus == "Not working":
+            temperatureHumidityStatus = "Working"
+            updateTemperatureHumidityStatus = True
+		
     else:
         print('Temperature and humidity sensor not working')
+        if temperatureHumidityStatus == "Working":
+            temperatureHumidityStatus = "Not working"
+            updateTemperatureHumidityStatus = True
+        if updateTemperatureHumidityStatus:
+            curs.execute("UPDATE temperature_Humidity_Sensor SET status = (?) where id = 1", temperatureHumidityStatus)
+            updateTemperatureHumidityStatus = False
 
 def writeValuesDay():
     d=datetime.now() - timedelta(days=1)
