@@ -55,7 +55,7 @@ def interval():
     cur.execute(query)
     rows = cur.fetchall();
    
-    return render_template('daily.html', rows = rows)
+    return render_template('archive.html', rows = rows)
 
 @app.route('/status')
 def status():
