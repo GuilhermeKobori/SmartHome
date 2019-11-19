@@ -62,7 +62,7 @@
 	    </div>
 	    <div>
 	      <form class="form-inline">
-		<label class="control-label col-sm-1" for="datetimepicker1" id="fromLabel">From:</label>
+		<label class="control-label px-3" for="datetimepicker1" id="fromLabel">From:</label>
 		  <div class="form-group">
 		      <div class="input-group date " id='datetimepicker1' >
 			  <input type='text' class="form-control" id='FromDate' name="startDate"/>
@@ -72,7 +72,7 @@
 		      </div> 
 		   </div>  
 
-		  <label class="control-label col-sm-1" for="datetimepicker2">To:</label>
+		  <label class="control-label px-3" for="datetimepicker2">To:</label>
 		  <div class="form-group">
 		      <div class="input-group date "  id='datetimepicker2'>
 			  <div id="To">
@@ -83,17 +83,18 @@
 			  </span>
 		      </div>
 		   </div> 
-
-		     <label class="control-label col-sm-1" for="toggle">Interval:</label>
+		     <label class="control-label pl-5" for="toggle">Interval:</label>
 		    <div class="form-group">
-			  <div class="custom-control custom-radio custom-control" id='toggle'>
+			  <label class="radio-inline">
+			  <div class="custom-control custom-radio custom-control pr-4" id='toggle'>
 			    <input type="radio" class="custom-control-input" id="15min" name="Interval" value="15min">
 			    <label class="custom-control-label" for="15min">15 minutes</label>
 			  </div>
 			  <div class="custom-control custom-radio custom-control">
 			    <input type="radio" class="custom-control-input" id="daily" name="Interval" value="daily" checked>
-			    <label class="custom-control-label" for="daily" >daily</label>
-			  </div>                       
+			    <label class="custom-control-label" for="daily" >Daily</label>
+			  </div>                    
+			  </label>   
 		    </div>
 		    <div class="form-group col-sm-1">
 		     </div>
