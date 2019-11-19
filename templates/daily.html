@@ -57,21 +57,51 @@
         </nav>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-            <h1 class="h2">Dashboard</h1>
-            <div class="btn-toolbar mb-2 mb-md-0">
-                <div class="dropdown">
-		  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
-		  <span id="selected">Today</span>
-		  <span data-feather="calendar"></span></button>
-		  <ul class="dropdown-menu">
-		    <li><a class="dropdown-item" href="?Interval=day">Today</a></li>
-		    <li><a class="dropdown-item" href="?Interval=week">This week</a></li>
-		    <li><a class="dropdown-item" href="?Interval=month">This month</a></li>
-		  </ul>
-		</div>
-            </div>
-          </div>
+	    <div class="container">
+	      <h1 class="h2">Archive</h1>
+	    </div>
+	    <div>
+	      <form class="form-inline">
+		<label class="control-label px-3" for="datetimepicker1" id="fromLabel">From:</label>
+		  <div class="form-group">
+		      <div class="input-group date " id='datetimepicker1' >
+			  <input type='text' class="form-control" id='FromDate' name="startDate"/>
+			  <span class="input-group-addon">
+			  <span class="glyphicon glyphicon-calendar"></span>
+			  </span>
+		      </div> 
+		   </div>  
+
+		  <label class="control-label px-3" for="datetimepicker2">To:</label>
+		  <div class="form-group">
+		      <div class="input-group date "  id='datetimepicker2'>
+			  <div id="To">
+			    <input type='text' class="form-control" id='ToDate' name="endDate"/>
+			  </div>  
+			  <span class="input-group-addon">
+			  <span class="glyphicon glyphicon-calendar"></span>
+			  </span>
+		      </div>
+		   </div> 
+		     <label class="control-label pl-5" for="toggle">Interval:</label>
+		    <div class="form-group">
+			  <label class="radio-inline">
+			  <div class="custom-control custom-radio custom-control pr-4" id='toggle'>
+			    <input type="radio" class="custom-control-input" id="15min" name="Interval" value="15min">
+			    <label class="custom-control-label" for="15min">15 minutes</label>
+			  </div>
+			  <div class="custom-control custom-radio custom-control">
+			    <input type="radio" class="custom-control-input" id="daily" name="Interval" value="daily" checked>
+			    <label class="custom-control-label" for="daily" >Daily</label>
+			  </div>                    
+			  </label>   
+		    </div>
+		    <div class="form-group col-sm-1">
+		     </div>
+		  <button type="submit" class="btn btn-primary ">Show</button>
+	      </form>
+	     </div>
+
 
 	
           <canvas class="my-4" id="myChart" width="900" height="380"></canvas>
@@ -118,16 +148,36 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <!-- Icons -->
     <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
-    <script>
-      feather.replace()
-    </script>
 
     <!-- Graphs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script src="http://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/a549aa8780dbda16f6cff545aeabc3d71073911e/src/js/bootstrap-datetimepicker.js"></script>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"/>
+
+    <link href="http://cdn.rawgit.com/Eonasdan/bootstrap-datetimepicker/a549aa8780dbda16f6cff545aeabc3d71073911e/build/css/bootstrap-datetimepicker.css" rel="stylesheet"/>
     <script>
-      
-      $('#selected').text("{{interval}}");
-      
+      feather.replace()
+    </script>
+    <script>
+
+     $(document).ready( function() {
+	$('#datetimepicker1').find('input[id=FromDate]').attr('value', "{{start}}");
+	$('#datetimepicker2').find('input[id=ToDate]').attr('value', "{{end}}");
+    });
+    
+     $('#datetimepicker1').datetimepicker({
+	format:'DD/MM/YYYY'});
+     $('#datetimepicker2').datetimepicker({
+	format: 'DD/MM/YYYY'});
+     $("#FromDate").text('12/12/2019');
+     $("#ToDate").text('12/12/2019');
       var ctx = document.getElementById("myChart");
       var myChart = new Chart(ctx, {
         type: 'line',
@@ -159,7 +209,7 @@
 	    fill: false,
             borderWidth: 4,
             pointBackgroundColor: '#00cc00',
-	    label: 'Humidity'		
+	    label: 'Brightness'		
 	  }]
         },
         options: {
