@@ -6,8 +6,15 @@ import os.path
 from datetime import datetime, timedelta
 import subprocess, sys
 
+#TODO database initialization script
+
 humidityThreshold = 60
 brightnessThreshold = 200
+
+updateTemperatureHumidityStatus = True
+updateBrightnessStatus = True
+temperatureHumidityStatus = "Working"
+brightnessStatus = "Working"
 
 def rotateMotor(rotations, direction):
     if(direction == "clockwise"):
@@ -24,20 +31,49 @@ def rotateMotor(rotations, direction):
             time.sleep(0.001)
 
 def readBrightness():
+    global brightnessStatus
     try:
         p = subprocess.Popen("./tsl_read",shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         o, e = p.communicate()
         brightness=float(o.decode('ascii'))*6.83
-        return brightness
+        if brightnessStatus == "Not working":
+            brightnessStatus = "Working"
+            updateBrightnessStatus = True
+        if updateBrightnessStatus:
+            query = "UPDATE brightness_Sensor SET status = '" + brightnessStatus + "' where id = 1"
+            curs.execute(query)
+            conn.commit()
+            updateBrightnessStatus = False
     except:
         print("Brightness sensor not working")
-        return 0
- 
+        brightness = 0
+        if brightnessStatus == "Working":
+            brightnessStatus = "Not working"
+            updateBrightnessStatus = True
+        if updateBrightnessStatus:
+            query = "UPDATE brightness_Sensor SET status = '" + brightnessStatus + "' where id = 1"
+            curs.execute(query)
+            conn.commit()
+            updateBrightnessStatus = False
+        return brightness
+
 def write15minValues():
+    global temperatureHumidityStatus
     humidity, temperature = Adafruit_DHT.read_retry(temperature_sensor, temperature_pin)
     brightness = readBrightness()
     if humidity is not None and temperature is not None:
         print('Temp={0:0.1f}*  Humidity={1:0.1f}% Brightness={2:0.1f}Lux '.format(temperature, humidity,brightness))
+        
+        print('Temperature and humidity sensor working')
+        if temperatureHumidityStatus == "Not working":
+            temperatureHumidityStatus = "Working"
+            updateTemperatureHumidityStatus = True
+        if updateTemperatureHumidityStatus:
+            query = "UPDATE temperature_Humidity_Sensor SET status = '" + temperatureHumidityStatus + "' where id = 1"
+            curs.execute(query)
+            conn.commit()
+            updateTemperatureHumidityStatus = False
+            
         if(brightness == 0):
             brightness = "NULL"
         curs.execute("insert into Values_15min values((?), (?), (?),(?), (?))", (datetime.now().strftime("%d/%m/%Y"),datetime.now().strftime("%H:%M:%S"),  round(temperature,2), round(humidity,2),brightness))
@@ -52,8 +88,20 @@ def write15minValues():
         else:
             GPIO.output(light_pin, 0)
             rotateMotor(2, "counterclockwise")
+        if temperatureHumidityStatus == "Not working":
+            temperatureHumidityStatus = "Working"
+            updateTemperatureHumidityStatus = True
+        
     else:
         print('Temperature and humidity sensor not working')
+        if temperatureHumidityStatus == "Working":
+            temperatureHumidityStatus = "Not working"
+            updateTemperatureHumidityStatus = True
+        if updateTemperatureHumidityStatus:
+            query = "UPDATE temperature_Humidity_Sensor SET status = '" + temperatureHumidityStatus + "' where id = 1"
+            curs.execute(query)
+            conn.commit()
+            updateTemperatureHumidityStatus = False
 
 def writeValuesDay():
     d=datetime.now() - timedelta(days=1)
@@ -63,6 +111,8 @@ def writeValuesDay():
     conn.commit()
     
 def routine():
+    global humidityThreshold
+    global brightnessThreshold
     while(True):
         if GPIO.input(CO2_sensor_pin):
             print("Fire Alarm!")
@@ -73,6 +123,10 @@ def routine():
                 write15minValues()
         if  datetime.now().hour==0 and datetime.now().minute==0:
                 writeValuesDay()
+        curs.execute("select * from humidity_Threshold where id = 1")
+        humidityThreshold = curs.fetchone()
+        curs.execute("select * from brightness_Threshold where id = 1")
+        brightnessThreshold = curs.fetchone()
         time.sleep(60)
     
 #setup
