@@ -70,16 +70,24 @@ def status():
     
     return render_template('status.html', brightnessSensorStatus = brightnessSensorStatus, temperatureHumiditySensorStatus = temperatureHumiditySensorStatus)
 
-@app.route('/settings')
-def settings():
+@app.route('/settings', methods = ['POST', 'GET'])
+def settings():    
     con = sql.connect("measurementData.db")
     con.row_factory = sql.Row
-   
+
     cur = con.cursor()
-    cur.execute("select * from test")
-   
-    rows = cur.fetchall();
-    return render_template('index.html', rows = rows)
+    
+    if request.method == 'POST':
+        result = request.form
+        query = "update humidity_Threshold set value = " + result["humidity"]+ " where id = 1"
+        print(query)
+        cur.execute(query)
+        query = "update brightness_Threshold set value = " + result["brightness"] + " where id = 1"
+        cur.execute(query)
+        con.commit()
+        return render_template('settings.html', humidityThreshold = result["humidity"], brightnessThreshold = result["brightness"], alert = 'True')
+    else:
+        return render_template('settings.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
