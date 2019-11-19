@@ -79,8 +79,12 @@ def settings():
     
     if request.method == 'POST':
         result = request.form
-        cur.execute("update humidity_Threshold set value = (?) where id = 1", result["humidity"])
-        cur.execute("update brightness_Threshold set value = (?) where id = 1", result["brightness"])
+        query = "update humidity_Threshold set value = " + result["humidity"]+ " where id = 1"
+        print(query)
+        cur.execute(query)
+        query = "update brightness_Threshold set value = " + result["brightness"] + " where id = 1"
+        cur.execute(query)
+        con.commit()
         return render_template('settings.html', humidityThreshold = result["humidity"], brightnessThreshold = result["brightness"], alert = 'True')
     else:
         return render_template('settings.html')
