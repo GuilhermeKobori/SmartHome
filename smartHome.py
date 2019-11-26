@@ -32,6 +32,7 @@ def rotateMotor(rotations, direction):
 
 def readBrightness():
     global brightnessStatus
+    global updateBrightnessStatus
     try:
         p = subprocess.Popen("./tsl_read",shell=True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
         o, e = p.communicate()
@@ -55,15 +56,15 @@ def readBrightness():
             curs.execute(query)
             conn.commit()
             updateBrightnessStatus = False
-        return brightness
+    return brightness
 
 def write15minValues():
     global temperatureHumidityStatus
+    global updateTemperatureHumidityStatus
     humidity, temperature = Adafruit_DHT.read_retry(temperature_sensor, temperature_pin)
     brightness = readBrightness()
     if humidity is not None and temperature is not None:
         print('Temp={0:0.1f}*  Humidity={1:0.1f}% Brightness={2:0.1f}Lux '.format(temperature, humidity,brightness))
-        
         print('Temperature and humidity sensor working')
         if temperatureHumidityStatus == "Not working":
             temperatureHumidityStatus = "Working"
@@ -79,15 +80,16 @@ def write15minValues():
         curs.execute("insert into Values_15min values((?), (?), (?),(?), (?))", (datetime.now().strftime("%d/%m/%Y"),datetime.now().strftime("%H:%M:%S"),  round(temperature,2), round(humidity,2),brightness))
         conn.commit()
         if(humidity < humidityThreshold):
-            GPIO.output(humidifier_pin, 1)
+            GPIO.output(humidifier_pin, GPIO.HIGH)
         else:
-            GPIO.output(humidifier_pin, 0)
-        if(brightness < brightnessThreshold):
-            GPIO.output(light_pin, 1)
-            rotateMotor(2, "clockwise")
-        else:
-            GPIO.output(light_pin, 0)
-            rotateMotor(2, "counterclockwise")
+            GPIO.output(humidifier_pin, GPIO.LOW)
+        if(brightness != "NULL"):
+            if(brightness < brightnessThreshold):
+                GPIO.output(light_pin, GPIO.HIGH)
+                rotateMotor(2, "clockwise")
+            else:
+                GPIO.output(light_pin, GPIO.LOW)
+                rotateMotor(2, "counterclockwise")
         if temperatureHumidityStatus == "Not working":
             temperatureHumidityStatus = "Working"
             updateTemperatureHumidityStatus = True
@@ -113,21 +115,24 @@ def writeValuesDay():
 def routine():
     global humidityThreshold
     global brightnessThreshold
+    
     while(True):
-        if GPIO.input(CO2_sensor_pin):
+        if not GPIO.input(CO2_sensor_pin):
             print("Fire Alarm!")
-            GPIO.output(buzzer_pin, 1)
+            GPIO.output(buzzer_pin, GPIO.HIGH)
         else:
-            GPIO.output(buzzer_pin, 0)
-        if datetime.now().minute==0  or datetime.now().minute==15 or datetime.now().minute==30 or datetime.now().minute==45 :
+            GPIO.output(buzzer_pin, GPIO.LOW)
+        if datetime.now().second<15 and (datetime.now().minute==0  or datetime.now().minute==15 or datetime.now().minute==30 or datetime.now().minute==45) :
                 write15minValues()
-        if  datetime.now().hour==0 and datetime.now().minute==0:
+        if  datetime.now().second<15 and datetime.now().hour==0 and datetime.now().minute==0:
                 writeValuesDay()
         curs.execute("select * from humidity_Threshold where id = 1")
         humidityThreshold = curs.fetchone()
+        humidityThreshold = humidityThreshold[1]
         curs.execute("select * from brightness_Threshold where id = 1")
         brightnessThreshold = curs.fetchone()
-        time.sleep(60)
+        brightnessThreshold = brightnessThreshold[1]
+        time.sleep(15)
     
 #setup
 GPIO.setmode(GPIO.BOARD)
