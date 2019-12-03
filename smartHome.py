@@ -109,7 +109,7 @@ def writeValuesDay():
     d=datetime.now() - timedelta(days=1)
     curs.execute("SELECT AVG(V.Temperature),AVG(V.Humidity),AVG(V.Brightness) FROM Values_15min V Where Date=(?)", (d.strftime("%d/%m/%Y"),))
     row = curs.fetchall()[0] 
-    curs.execute("insert into Values_day values((?), (?),(?), (?))", (d.strftime("%d/%m/%Y"), row[0], row[1] ,row[2]))
+    curs.execute("insert into Values_Day values((?), (?),(?), (?))", (d.strftime("%d/%m/%Y"), row[0], row[1] ,row[2]))
     conn.commit()
     
 def routine():
@@ -117,14 +117,15 @@ def routine():
     global brightnessThreshold
     
     while(True):
+        write15minValues()
         if not GPIO.input(CO2_sensor_pin):
             print("Fire Alarm!")
             GPIO.output(buzzer_pin, GPIO.HIGH)
         else:
             GPIO.output(buzzer_pin, GPIO.LOW)
         if datetime.now().second<15 and (datetime.now().minute==0  or datetime.now().minute==15 or datetime.now().minute==30 or datetime.now().minute==45) :
-                write15minValues()
-        if  datetime.now().second<15 and datetime.now().hour==0 and datetime.now().minute==0:
+            write15minValues()
+            if datetime.now().hour==0 and datetime.now().minute==0:
                 writeValuesDay()
         curs.execute("select * from humidity_Threshold where id = 1")
         humidityThreshold = curs.fetchone()

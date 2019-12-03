@@ -49,9 +49,12 @@ def interval():
     cur = con.cursor()
     startDate = request.args.get('startDate')
     endDate = request.args.get('endDate')
-    frequency = request.args.get('frequency')
-    #if frequency change table
-    query = 'SELECT * from Values_15min WHERE Date IN ("%s", "%s")' % (startDate, endDate)
+    frequency = request.args.get('Interval')
+    print("asdasd" + str(frequency))
+    if str(frequency) == "15min":
+        query = 'SELECT * from Values_15min WHERE Date IN ("%s", "%s")' % (startDate, endDate)
+    else:
+        query = 'SELECT * from Values_Day WHERE Date IN ("%s", "%s")' % (startDate, endDate)
     cur.execute(query)
     rows = cur.fetchall();
    
